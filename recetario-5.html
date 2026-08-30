@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="color-scheme" content="light" />
+<title>El Recetario</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Quicksand:wght@500;600;700&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #c7ccc7;
+    --bg-2: #bcc2ba;
+    --paper: #ffffff;
+    --paper-2: #ded9ce;
+    --ink: #2c3e46;
+    --ink-soft: #5c7481;
+    --brass: #8ecbd9;
+    --brass-light: #b7e0ea;
+    --rust: #2c5468;
+    --sage: #74899a;
+    --line: rgba(44,62,70,0.16);
+    --radius: 2px;
+  }
+
+  html {
+    background: #c7ccc7;
+    color-scheme: light;
+  }
+
+  * { box-sizing: border-box; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 15% 10%, rgba(255,255,255,0.03), transparent 40%),
+      radial-gradient(circle at 85% 90%, rgba(255,255,255,0.02), transparent 45%);
+    color: var(--ink);
+    font-family: 'Archivo', sans-serif;
+    min-height: 100vh;
+    padding: 0 0 80px;
+  }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 28px; }
+
+  /* ---------- Header / spine tab ---------- */
+  header.top {
+    padding: 56px 0 36px;
+    position: relative;
+  }
+
+  .tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--brass);
+    color: var(--rust);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 6px 14px 6px 12px;
+    border-radius: 0 3px 3px 0;
+    margin-bottom: 22px;
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.12);
+  }
+  .tab::before { content: "◆"; font-size: 9px; }
+
+  h1.title {
+    font-family: 'Fraunces', serif;
+    font-optical-sizing: auto;
+    font-weight: 700;
+    font-size: clamp(2.4rem, 5vw, 3.6rem);
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+    color: var(--rust);
+  }
+  h1.title em {
+    font-style: italic;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  h1.title .title-plain {
+    color: var(--sage);
+    font-weight: 400;
+    font-style: normal;
+  }
+
+  p.sub {
+    font-size: 15px;
+    color: rgba(44,62,70,0.72);
+    max-width: 480px;
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  p.sub .lock { color: var(--rust); font-weight: 600; }
+
+  /* ---------- Grid de tiles cuadrados ---------- */
+  .grid, .preps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+    gap: 14px;
+    margin-top: 20px;
+  }
+
+  .tile {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    background: var(--paper);
+    color: var(--ink);
+    border: none;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 10px;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.16);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    text-align: center;
+    font: inherit;
+  }
+  .tile:hover, .tile:focus-visible {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.24);
+  }
+  .tile:focus-visible { outline: 2px solid var(--rust); outline-offset: 2px; }
+
+  .tile-icon-circle {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: rgba(44,62,70,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .tile-icon {
+    width: 22px;
+    height: 22px;
+    color: var(--rust);
+  }
+
+  .tile-name {
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    line-height: 1.3;
+    color: var(--ink);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .tile-edit {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: none;
+    color: var(--ink-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    cursor: pointer;
+    opacity: 0.6;
+    z-index: 2;
+  }
+  .tile-edit:hover, .tile-edit:focus-visible {
+    opacity: 1;
+    color: var(--rust);
+  }
+  .tile-edit:focus-visible { outline: 2px solid var(--brass); outline-offset: 1px; }
+
+  .add-tile {
+    aspect-ratio: 1 / 1;
+    border: 2px dashed rgba(44,62,70,0.28);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(44,62,70,0.5);
+    cursor: pointer;
+    font-family: 'Fraunces', serif;
+    font-size: 26px;
+    background: rgba(255,255,255,0.2);
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .add-tile:hover, .add-tile:focus-visible {
+    background: rgba(255,255,255,0.45);
+    color: var(--ink);
+    border-color: var(--rust);
+  }
+
+  /* ---------- Botón flotante "volver arriba" ---------- */
+  .back-to-top {
+    position: fixed;
+    right: 20px;
+    bottom: 26px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--rust);
+    color: var(--paper);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.32);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 55;
+  }
+  .back-to-top.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
+  .back-to-top svg { width: 20px; height: 20px; }
+  .back-to-top:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+
+  .seal {
+    position: absolute;
+    top: -14px;
+    right: 18px;
+    width: 66px;
+    height: 66px;
+    border-radius: 50%;
+    background: var(--rust);
+    color: var(--paper);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(8deg);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.25), inset 0 0 0 2px rgba(255,255,255,0.35);
+    font-family: 'IBM Plex Mono', monospace;
+    text-align: center;
+    z-index: 2;
+  }
+  .seal .kcal { font-size: 15px; font-weight: 500; line-height: 1; }
+  .seal .kcal-label { font-size: 7px; letter-spacing: 0.06em; opacity: 0.85; }
+  .seal .prot { font-size: 9px; margin-top: 2px; opacity: 0.9; }
+
+  .tag {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--sage);
+    border: 1px solid var(--sage);
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+
+  h2.recipe-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 1.36rem;
+    line-height: 1.15;
+    margin: 0 0 6px;
+    padding-right: 60px;
+  }
+
+  p.desc {
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+    margin: 0 0 18px;
+  }
+
+  .section-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--rust);
+    margin: 16px 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+
+  ul.ingredients {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 13.5px;
+    line-height: 1.7;
+  }
+  ul.ingredients li {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px dotted var(--line);
+    padding: 3px 0;
+  }
+  ul.ingredients li span.amt {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+    white-space: nowrap;
+    padding-left: 10px;
+  }
+
+  .steps-toggle {
+    background: none;
+    border: none;
+    font-family: 'Archivo', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--rust);
+    cursor: pointer;
+    padding: 0;
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .steps-toggle:focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; }
+  .steps-toggle .arrow { transition: transform 0.2s ease; display: inline-block; }
+  .steps-toggle.open .arrow { transform: rotate(90deg); }
+
+  ol.steps {
+    list-style: none;
+    counter-reset: step;
+    margin: 14px 0 0;
+    padding: 0;
+    display: none;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  ol.steps.open { display: block; }
+  ol.steps li {
+    counter-increment: step;
+    position: relative;
+    padding-left: 30px;
+    margin-bottom: 12px;
+    color: var(--ink);
+  }
+  ol.steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0; top: -1px;
+    width: 20px; height: 20px;
+    background: var(--sage);
+    color: var(--paper);
+    border-radius: 50%;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .notes {
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-style: italic;
+    line-height: 1.5;
+    border-left: 2px solid var(--brass);
+    padding-left: 10px;
+  }
+
+  /* ---------- Modal ---------- */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 50;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--paper);
+    color: var(--ink);
+    width: 100%;
+    max-width: 520px;
+    max-height: 86vh;
+    overflow-y: auto;
+    padding: 30px;
+    border-radius: 3px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .modal h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.5rem;
+    margin: 0 0 18px;
+  }
+  .field { margin-bottom: 14px; }
+  .field label {
+    display: block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--rust);
+    margin-bottom: 5px;
+  }
+  .field input, .field textarea {
+    width: 100%;
+    font-family: 'Archivo', sans-serif;
+    font-size: 14px;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    background: #fffdf7;
+    color: var(--ink);
+    resize: vertical;
+  }
+  .field input:focus-visible, .field textarea:focus-visible {
+    outline: 2px solid var(--brass);
+    outline-offset: 1px;
+  }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+  .btn {
+    font-family: 'Archivo', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 9px 18px;
+    border-radius: 2px;
+    border: none;
+    cursor: pointer;
+  }
+  .btn.primary { background: var(--rust); color: var(--paper); }
+  .btn.ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
+  .btn:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+
+  .empty, .loading {
+    color: rgba(44,62,70,0.5);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    padding: 40px 0;
+    text-align: center;
+  }
+
+  /* ---------- Fullscreen recipe modal ---------- */
+
+  /* ---------- Preparaciones base (separate section) ---------- */
+  .preps-section {
+    margin-top: 60px;
+  }
+  .preps-heading {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+  .preps-heading h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 1.6rem;
+    color: var(--rust);
+    margin: 0;
+  }
+  .preps-heading .count {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: rgba(44,62,70,0.55);
+  }
+  .preps-sub {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin: 0 0 22px;
+    max-width: 520px;
+  }
+
+  .recipe-modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(15,20,18,0.62);
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 0;
+    z-index: 70;
+    overflow-y: auto;
+  }
+  .recipe-modal-overlay.open { display: flex; }
+
+  .recipe-modal {
+    background: var(--paper);
+    color: var(--ink);
+    width: 100%;
+    max-width: 680px;
+    min-height: 100vh;
+    padding: 46px 26px 60px;
+    position: relative;
+    box-shadow: 0 0 60px rgba(0,0,0,0.4);
+  }
+  @media (min-width: 720px) {
+    .recipe-modal {
+      min-height: auto;
+      margin: 40px auto;
+      border-radius: 4px;
+    }
+  }
+
+  .recipe-modal-close {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--rust);
+    color: var(--paper);
+    border: none;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 71;
+  }
+  .recipe-modal-close:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+
+  .recipe-modal-edit {
+    position: fixed;
+    top: 68px;
+    right: 16px;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--rust);
+    color: var(--paper);
+    border: none;
+    font-size: 17px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 71;
+  }
+  .recipe-modal-edit:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+
+  .recipe-modal .tag { margin-bottom: 16px; }
+
+  .recipe-modal h2.recipe-title {
+    font-size: 2rem;
+    padding-right: 0;
+    margin-bottom: 10px;
+  }
+
+  .recipe-modal .seal {
+    position: static;
+    display: inline-flex;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 6px;
+    width: auto;
+    height: auto;
+    border-radius: 20px;
+    padding: 6px 14px;
+    transform: none;
+    margin-bottom: 18px;
+    box-shadow: none;
+  }
+  .recipe-modal .seal .kcal { font-size: 16px; }
+  .recipe-modal .seal .kcal-label { font-size: 9px; }
+  .recipe-modal .seal .prot { font-size: 12px; margin-top: 0; }
+
+  .recipe-modal p.desc {
+    font-size: 15px;
+    margin-bottom: 24px;
+  }
+
+  .recipe-modal .section-label {
+    font-size: 12px;
+    margin: 26px 0 12px;
+  }
+
+  .recipe-modal ul.ingredients {
+    font-size: 16px;
+    line-height: 2;
+  }
+  .recipe-modal ul.ingredients li span.amt { font-size: 14px; }
+
+  .recipe-modal ol.steps {
+    display: block;
+    font-size: 15px;
+    line-height: 1.7;
+    margin-top: 6px;
+  }
+  .recipe-modal ol.steps li { padding-left: 36px; margin-bottom: 18px; }
+  .recipe-modal ol.steps li::before { width: 24px; height: 24px; font-size: 11px; top: -2px; }
+
+  .recipe-modal .notes { font-size: 14px; margin-top: 22px; }
+
+  .status-msg {
+    position: fixed;
+    bottom: 22px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--sage);
+    color: var(--paper);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    padding: 10px 18px;
+    border-radius: 3px;
+    opacity: 0;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    pointer-events: none;
+    z-index: 60;
+  }
+  .status-msg.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div class="tab">Privado · solo tú</div>
+    <h1 class="title"><span class="title-plain">El</span> <em>Recetario</em></h1>
+    <p class="sub">Tu colección personal de comidas — cada una pensada para llenar bien, sostener el déficit y no aburrirte. <span class="lock">Guardado en tu dispositivo, nadie más lo ve.</span></p>
+  </header>
+
+  <div id="grid" class="grid" aria-live="polite">
+    <div class="loading">cargando recetario…</div>
+  </div>
+
+  <section class="preps-section" id="prepsSection">
+    <div class="preps-heading">
+      <h2>Preparaciones base</h2>
+      <span class="count" id="prepsCount"></span>
+    </div>
+    <p class="preps-sub">Cosas que preparas en lote una vez y usas durante la semana — no son una comida en sí, son un ingrediente listo.</p>
+    <div id="prepsGrid" class="preps-grid"></div>
+  </section>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3 id="modalTitle">Nueva receta</h3>
+    <div class="field">
+      <label for="f-title">Nombre</label>
+      <input id="f-title" type="text" placeholder="Ej. Ensalada de pollo con jícama" />
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="f-tag">Momento</label>
+        <input id="f-tag" type="text" placeholder="Desayuno / Comida / Cena" />
+      </div>
+      <div class="field">
+        <label for="f-kcal">Kcal aprox.</label>
+        <input id="f-kcal" type="number" placeholder="380" />
+      </div>
+    </div>
+    <div class="field">
+      <label for="f-prot">Proteína (g)</label>
+      <input id="f-prot" type="number" placeholder="45" />
+    </div>
+    <div class="field">
+      <label for="f-desc">Descripción breve</label>
+      <textarea id="f-desc" rows="2" placeholder="Una frase sobre esta receta"></textarea>
+    </div>
+    <div class="field">
+      <label for="f-ing">Ingredientes (uno por línea, "cantidad — nombre")</label>
+      <textarea id="f-ing" rows="4" placeholder="100g — pechuga de pollo&#10;30g — queso cottage"></textarea>
+    </div>
+    <div class="field">
+      <label for="f-steps">Pasos (uno por línea)</label>
+      <textarea id="f-steps" rows="4" placeholder="Sella el pollo con especias&#10;Agrega las verduras y saltea"></textarea>
+    </div>
+    <div class="field">
+      <label for="f-notes">Notas / tips (opcional)</label>
+      <textarea id="f-notes" rows="2" placeholder="Algún tip o aclaración sobre la receta"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" id="btnCancel">Cancelar</button>
+      <button class="btn primary" id="btnSave">Guardar receta</button>
+    </div>
+  </div>
+</div>
+
+<div class="status-msg" id="statusMsg"></div>
+
+<button class="back-to-top" id="backToTop" aria-label="Volver arriba">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
+</button>
+
+<div class="recipe-modal-overlay" id="recipeModalOverlay">
+  <button class="recipe-modal-edit" id="recipeModalEdit" aria-label="Editar receta">✎</button>
+  <button class="recipe-modal-close" id="recipeModalClose" aria-label="Cerrar">✕</button>
+  <div class="recipe-modal" id="recipeModalContent"></div>
+</div>
+
+<script>
+const STORAGE_KEY = 'recetario:recetas';
+const PREPS_STORAGE_KEY = 'recetario:preparaciones';
+
+const defaultPreps = [
+  {
+    title: "Quinoa cocida en lote",
+    tag: "Preparación base",
+    kcal: 25,
+    protein: 1,
+    desc: "Cocina un lote una vez y ten quinoa lista toda la semana para topping del bowl — rinde ~10 porciones.",
+    ingredients: [
+      { amt: "50 g", name: "quinoa orgánica cruda (Tía Ofilia)" },
+      { amt: "100 ml", name: "agua" },
+    ],
+    steps: [
+      "Enjuaga bien la quinoa cruda en un colador fino bajo el chorro de agua — quita el sabor amargo natural (saponina).",
+      "En una olla, agrega la quinoa enjuagada con el agua (proporción 1:2).",
+      "Lleva a hervor, luego baja a fuego bajo, tapa la olla y cocina 12-15 min hasta que el agua se absorba y se vea la colita blanca en cada grano.",
+      "Deja enfriar por completo antes de guardar.",
+      "Guarda en un frasco o recipiente cerrado en el refrigerador — dura 4-5 días.",
+    ],
+    notes: "Usa ~15-20g de esta quinoa ya cocida por porción de bowl. Los kcal/proteína mostrados arriba son por esa porción de topping, no por el lote completo."
+  }
+];
+
+let recipes = [];
+let preps = [];
+
+// Funciona tanto dentro de Claude (window.storage) como si abres el
+// archivo suelto en Safari/Archivos (usa localStorage como respaldo).
+const storageAdapter = {
+  async get(key) {
+    if (typeof window.storage !== 'undefined' && window.storage && typeof window.storage.get === 'function') {
+      try {
+        const result = await Promise.race([
+          window.storage.get(key, false),
+          new Promise((resolve) => setTimeout(() => resolve(null), 2500))
+        ]);
+        return result;
+      } catch (e) {
+        return null;
+      }
+    }
+    try {
+      const v = localStorage.getItem(key);
+      return v ? { value: v } : null;
+    } catch (e) {
+      return null;
+    }
+  },
+  async set(key, value) {
+    if (typeof window.storage !== 'undefined' && window.storage && typeof window.storage.set === 'function') {
+      try {
+        await Promise.race([
+          window.storage.set(key, value, false),
+          new Promise((resolve) => setTimeout(resolve, 2500))
+        ]);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+    try {
+      localStorage.setItem(key, value);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+};
+
+const defaultRecipes = [
+  {
+    title: "Bowl de yogur, granola y fruta",
+    tag: "Desayuno",
+    kcal: 270,
+    protein: 19.5,
+    desc: "El desayuno base: alto en proteína, mínima azúcar añadida, listo en 5 minutos.",
+    ingredients: [
+      { amt: "140 g", name: "yogur natural sin azúcar" },
+      { amt: "20 g", name: "granola orgánica cacao + quinoa" },
+      { amt: "70 g", name: "manzana en cubos" },
+      { amt: "40 g", name: "fresa picada" },
+      { amt: "10 g", name: "chocolate Turin 55% sin azúcar" },
+    ],
+    steps: [
+      "Sirve el yogur natural como base en un bowl.",
+      "Corta la manzana y la fresa en cubos pequeños.",
+      "Distribuye la fruta sobre el yogur.",
+      "Agrega la granola y termina con el chocolate en trocitos.",
+    ],
+    notes: "Pesa la granola — es fácil que la mano se \"relaje\" con el tiempo y sirvas más de la cuenta."
+  },
+  {
+    title: "Pasta cremosa de pollo con verduras",
+    tag: "Cena",
+    kcal: 382,
+    protein: 45,
+    desc: "Salsa cremosa sin crema real — yogur y cottage hacen el trabajo, el Philadelphia solo da el acento.",
+    ingredients: [
+      { amt: "100 g", name: "pechuga de pollo, en cubos" },
+      { amt: "40 g", name: "pasta corta (penne o fusilli)" },
+      { amt: "100 g", name: "verduras mixtas (calabacita, pimiento, brócoli)" },
+      { amt: "30 g", name: "queso cottage" },
+      { amt: "30 g", name: "yogur natural sin azúcar" },
+      { amt: "15 g", name: "queso crema Philadelphia" },
+      { amt: "8 g", name: "queso parmesano rallado" },
+      { amt: "1 tsp", name: "aceite de oliva" },
+      { amt: "al gusto", name: "ajo en polvo, pimienta, sal" },
+    ],
+    steps: [
+      "Cuece la pasta al dente, reserva un poco del agua de cocción.",
+      "Sella el pollo en aceite de oliva con especias hasta dorar.",
+      "Agrega las verduras al mismo sartén y saltea 4-5 min.",
+      "Licúa o machaca el cottage, yogur y Philadelphia hasta una crema tersa.",
+      "Baja el fuego, integra la crema al sartén, aligera con agua de cocción si hace falta.",
+      "Incorpora la pasta, mezcla y espolvorea parmesano al servir.",
+    ],
+    notes: "Mantén el fuego medio-bajo al agregar los lácteos — si hierve fuerte la salsa se puede cortar."
+  },
+  {
+    title: "Papas cambray con pollo en salsa cremosa",
+    tag: "Cena",
+    kcal: 395,
+    protein: 45,
+    desc: "Misma salsa alta en proteína que la pasta, pero con papa cambray dorada para variar el carbohidrato.",
+    ingredients: [
+      { amt: "120 g", name: "papas cambray, partidas a la mitad" },
+      { amt: "100 g", name: "pechuga de pollo, en cubos" },
+      { amt: "100 g", name: "verduras mixtas (calabacita, pimiento, brócoli)" },
+      { amt: "30 g", name: "queso cottage" },
+      { amt: "30 g", name: "yogur natural sin azúcar" },
+      { amt: "15 g", name: "queso crema Philadelphia" },
+      { amt: "8 g", name: "queso parmesano rallado" },
+      { amt: "1.5 tsp", name: "aceite de oliva" },
+      { amt: "pizca", name: "paprika o pimentón" },
+    ],
+    steps: [
+      "Precuece las papas cambray hasta que estén suaves pero firmes.",
+      "Dora las papas en sartén con aceite hasta que doren ligeramente. Reserva.",
+      "En el mismo sartén, sella el pollo con especias y paprika.",
+      "Agrega las verduras y saltea 4-5 min.",
+      "Licúa el cottage, yogur y Philadelphia hasta obtener una crema homogénea.",
+      "Integra la crema al sartén, aligera con agua o caldo, regresa las papas y mezcla.",
+      "Sirve y espolvorea parmesano encima.",
+    ],
+    notes: "Doradas primero en sartén, las papas cambray quedan cremosas por dentro y ligeramente crujientes por fuera."
+  },
+  {
+    title: "Caldo Tlalpeño fit",
+    tag: "Cena",
+    kcal: 260,
+    protein: 29,
+    desc: "Caldo de pollo ligero y alto en proteína magra, con el toque ahumado del chipotle si lo tienes a mano.",
+    ingredients: [
+      { amt: "150 g", name: "pechuga de pollo (congelada, sin hueso)" },
+      { amt: "100 g", name: "papa, en cubos" },
+      { amt: "60 g", name: "zanahoria, en rodajas" },
+      { amt: "1/4 pieza", name: "cebolla" },
+      { amt: "1 diente", name: "ajo" },
+      { amt: "1 hoja", name: "laurel (opcional)" },
+      { amt: "500 ml", name: "agua" },
+      { amt: "al gusto", name: "sal y pimienta" },
+      { amt: "1/2 pieza", name: "chile chipotle seco o adobado (opcional, es el toque tlalpeño)" },
+      { amt: "30 g", name: "garbanzo cocido (opcional)" },
+      { amt: "1/4 pieza", name: "aguacate (opcional)" },
+      { amt: "20 g", name: "queso panela (opcional)" },
+      { amt: "al gusto", name: "cilantro y limón" },
+    ],
+    steps: [
+      "Descongela el pollo (bajo agua fría o con antelación) y colócalo en una olla con el agua, cebolla, ajo y laurel.",
+      "Lleva a ebullición, baja el fuego y cuece 15-20 min hasta que el pollo esté bien cocido.",
+      "Retira el pollo, deshébralo con dos tenedores y regrésalo al caldo.",
+      "Agrega la papa y la zanahoria al caldo, cuece 12-15 min hasta que estén suaves.",
+      "Si usas chipotle, licúalo con un poco de caldo caliente y agrégalo — es lo que le da el sello tlalpeño.",
+      "Ajusta sal y pimienta al gusto.",
+      "Sirve caliente con cilantro, limón, y si tienes, garbanzo, aguacate o queso panela encima.",
+    ],
+    notes: "Sin el chipotle sigue siendo un caldo de pollo saludable, solo menos \"auténtico\". Si agregas aguacate o queso panela, suma esas calorías extra al total — son opcionales, no obligatorios para que quede rico."
+  },
+  {
+    title: "Chilaquiles verdes fit con pollo deshebrado",
+    tag: "Desayuno / Cena",
+    kcal: 460,
+    protein: 39,
+    desc: "Totopos horneados (no fritos) y yogur natural en lugar de crema — mismo sabor de chilaquiles verdes, mucha menos grasa.",
+    ingredients: [
+      { amt: "3 piezas", name: "tortillas de maíz, en triángulos" },
+      { amt: "1 tsp", name: "aceite (para hornear, o spray)" },
+      { amt: "100 g", name: "pechuga de pollo, cocida y deshebrada" },
+      { amt: "150 g", name: "tomate verde (tomatillo)" },
+      { amt: "1 pieza", name: "chile serrano o jalapeño (al gusto)" },
+      { amt: "1/4 pieza", name: "cebolla blanca (para la salsa)" },
+      { amt: "1 diente", name: "ajo" },
+      { amt: "al gusto", name: "cilantro fresco" },
+      { amt: "20 g", name: "queso fresco o panela, desmoronado" },
+      { amt: "1 tbsp", name: "yogur natural sin azúcar (en lugar de crema)" },
+      { amt: "al gusto", name: "cebolla morada fileteada" },
+    ],
+    steps: [
+      "Precalienta el horno a 200°C. Acomoda los triángulos de tortilla en una charola, rocía con aceite y hornea volteando a la mitad, hasta dorar y quedar crujientes (~10 min).",
+      "Hierve el tomate verde, chile, cebolla y ajo en agua que los cubra hasta que el tomate cambie a color olivo (5-7 min).",
+      "Licúa los ingredientes cocidos con cilantro y sal, usando un poco del agua de cocción para ajustar la consistencia.",
+      "Calienta la salsa en un sartén a fuego medio 3-4 min hasta que hierva y se sazone.",
+      "Agrega los totopos horneados a la salsa caliente, mezcla rápido 10-15 segundos (no más, para no perder el crujido).",
+      "Sirve de inmediato, corona con el pollo deshebrado, queso, yogur, cebolla morada y cilantro extra.",
+    ],
+    notes: "El truco fit: totopos horneados en vez de fritos, y yogur natural en vez de crema — casi no se nota la diferencia sobre la salsa caliente. Sirve de inmediato, pierden textura si reposan mucho en la salsa."
+  },
+  {
+    title: "Burger fit con salsa de yogur",
+    tag: "Comida / Cena",
+    kcal: 500,
+    protein: 39,
+    desc: "Carne magra, salsa cremosa de yogur en lugar de mayonesa, y opción de pan integral o lechuga si quieres bajar aún más los carbos.",
+    ingredients: [
+      { amt: "150 g", name: "carne molida magra (90/10) o pechuga de pollo molida" },
+      { amt: "1/4 pieza", name: "cebolla, finamente picada (para la carne)" },
+      { amt: "1/2 diente", name: "ajo picado" },
+      { amt: "al gusto", name: "comino, pimienta y sal" },
+      { amt: "1 pieza", name: "pan integral para hamburguesa (o lechuga tipo bun)" },
+      { amt: "15 g", name: "queso panela o queso bajo en grasa" },
+      { amt: "2 hojas", name: "lechuga" },
+      { amt: "2 rebanadas", name: "jitomate" },
+      { amt: "3 rebanadas", name: "cebolla morada" },
+      { amt: "30 g", name: "aguacate, en rebanadas" },
+      { amt: "1 tbsp", name: "yogur natural sin azúcar (base de la salsa)" },
+      { amt: "1/2 tsp", name: "mostaza" },
+      { amt: "pizca", name: "chipotle en polvo o adobado (opcional)" },
+    ],
+    steps: [
+      "Mezcla la carne con cebolla, ajo, comino, pimienta y sal. Forma una hamburguesa sin compactarla demasiado.",
+      "Cocina en sartén o parrilla a fuego medio-alto, 4-5 min por lado (bien cocida si es pollo).",
+      "En el último minuto, coloca el queso encima para que se derrita con el calor residual.",
+      "Mezcla el yogur, mostaza y chipotle en un tazón — esta es tu salsa sin mayonesa.",
+      "Tuesta ligeramente el pan y unta la salsa de yogur en ambas caras.",
+      "Arma la hamburguesa con lechuga, jitomate, la carne con queso, cebolla morada y aguacate. Sirve de inmediato.",
+    ],
+    notes: "La salsa de yogur+mostaza+chipotle sustituye la mayonesa sin perder cremosidad. Con carne 90/10 o pollo molido queda aún más ligera. Cambia el pan por lechuga si quieres bajar más los carbos."
+  },
+  {
+    title: "Pollo y papas al horno con costra de parmesano",
+    tag: "Comida / Cena",
+    kcal: 480,
+    protein: 46,
+    desc: "Todo en una sola charola — el horno hace el trabajo que normalmente haría el aceite frito. Mínima grasa añadida, sabor de las especias y el parmesano dorado al final.",
+    ingredients: [
+      { amt: "200 g", name: "pechuga de pollo, en trozos grandes o filete entero" },
+      { amt: "200 g", name: "papa, en cubos medianos" },
+      { amt: "20 g", name: "queso parmesano rallado" },
+      { amt: "1 tbsp", name: "aceite de oliva" },
+      { amt: "1 tsp", name: "ajo en polvo" },
+      { amt: "1 tsp", name: "paprika" },
+      { amt: "1 tsp", name: "orégano" },
+      { amt: "al gusto", name: "sal y pimienta negra" },
+      { amt: "al gusto", name: "perejil fresco picado (para decorar)" },
+      { amt: "1/2 pieza", name: "limón (opcional, para servir)" },
+    ],
+    steps: [
+      "Precalienta el horno a 200°C. Mezcla la papa con la mitad del aceite y las especias, hasta cubrir bien.",
+      "Acomoda la papa en la charola en una sola capa. Hornea sola primero 15 min para que le lleve ventaja de cocción al pollo.",
+      "Mientras hornea, sazona el pollo con el resto del aceite y las especias.",
+      "Saca la charola, empuja la papa hacia los lados y coloca el pollo en el centro. Regresa al horno 15 min.",
+      "Saca la charola, espolvorea el parmesano sobre pollo y papa. Regresa al horno 6-8 min hasta que dore y el pollo esté bien cocido.",
+      "Deja reposar 2-3 min. Sirve con perejil espolvoreado y limón al gusto.",
+    ],
+    notes: "El parmesano va en los últimos 8-10 minutos, no desde el inicio, para que dore sin quemarse. Si no tienes papel para hornear, usa varias capas de aluminio sobre la charola del horno con un poco de aceite encima."
+  },
+  {
+    title: "Calabacitas con queso panela sobre tostada horneada con aguacate",
+    tag: "Comida / Cena",
+    kcal: 380,
+    protein: 20,
+    desc: "Salteado sencillo de calabaza, tomate y cebolla con queso panela, servido sobre tostadas horneadas con aguacate.",
+    ingredients: [
+      { amt: "1 tbsp", name: "aceite de oliva" },
+      { amt: "1/2 pieza", name: "cebolla, en cubos pequeños" },
+      { amt: "1 pieza", name: "jitomate, en cubos" },
+      { amt: "1 pieza", name: "calabacita, en cubos" },
+      { amt: "al gusto", name: "sal y pimienta negra" },
+      { amt: "60 g", name: "queso panela, en cuadros o bloques" },
+      { amt: "2 piezas", name: "tostadas horneadas" },
+      { amt: "1/2 pieza", name: "aguacate, machacado o en rebanadas (base de la tostada)" },
+    ],
+    steps: [
+      "Calienta el aceite en un sartén a fuego medio. Agrega la cebolla y el jitomate, cocina 3-4 min hasta que la cebolla esté translúcida.",
+      "Agrega la calabaza, sal y pimienta. Cocina 6-8 min a fuego medio, moviendo ocasionalmente, hasta que esté suave pero no aguada.",
+      "Incorpora el queso panela en cuadros, mezcla suavemente y cocina 1-2 min más solo para calentarlo, sin que se deshaga del todo.",
+      "Unta el aguacate sobre las tostadas como base.",
+      "Sirve la mezcla encima de las tostadas de inmediato, para que no se humedezcan.",
+    ],
+    notes: "El queso panela va al final y a fuego bajo — solo para calentarlo, no se derrite como un queso fundido. Puedes usar tostadas de bolsa o hacerlas tú mismo horneando tortillas de maíz a 200°C hasta que doren."
+  },
+  {
+    title: "Bowl de yogur con mezcla individual (avena, nibs, nuez, quinoa)",
+    tag: "Desayuno",
+    kcal: 310,
+    protein: 20,
+    desc: "Versión del bowl armando tu propia mezcla en vez de granola comercial — avena, nibs de cacao, nuez y quinoa cocida por separado.",
+    ingredients: [
+      { amt: "130 g", name: "yogur griego natural sin azúcar" },
+      { amt: "60 g", name: "manzana en cubos" },
+      { amt: "40 g", name: "fresa picada" },
+      { amt: "10 g", name: "chocolate Turin 55% sin azúcar" },
+      { amt: "11 g", name: "avena en hojuelas" },
+      { amt: "4 g", name: "nibs de cacao orgánico" },
+      { amt: "9 g", name: "nuez o almendra" },
+      { amt: "18 g", name: "quinoa cocida y fría (del lote preparado)" },
+    ],
+    steps: [
+      "Sirve el yogur griego como base en un bowl.",
+      "Corta la manzana y la fresa en cubos pequeños, distribúyelas sobre el yogur.",
+      "Agrega la avena, nibs de cacao, nuez y quinoa cocida encima.",
+      "Termina con el chocolate Turin en trocitos.",
+    ],
+    notes: "Sin proteína en polvo, este bowl da ~20g de proteína en ~310 kcal — sigue siendo una buena relación. Si agregas 15g (cuchara grande) de Birdman, sube a ~32g de proteína y ~365 kcal."
+  }
+];
+
+function showStatus(msg) {
+  const el = document.getElementById('statusMsg');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+async function loadRecipes() {
+  let stored = null;
+  try {
+    const result = await storageAdapter.get(STORAGE_KEY);
+    if (result && result.value) stored = JSON.parse(result.value);
+  } catch (e) {
+    stored = null;
+  }
+
+  if (!stored || !stored.length) {
+    recipes = defaultRecipes;
+  } else {
+    recipes = stored;
+    const existingTitles = new Set(stored.map(r => r.title));
+    let addedAny = false;
+    defaultRecipes.forEach(dr => {
+      if (!existingTitles.has(dr.title)) {
+        recipes.push(dr);
+        addedAny = true;
+      }
+    });
+    if (!addedAny) {
+      render();
+      return;
+    }
+  }
+
+  try {
+    await storageAdapter.set(STORAGE_KEY, JSON.stringify(recipes));
+  } catch (e) {
+    showStatus('No se pudo guardar la actualización');
+  }
+  render();
+}
+
+async function saveRecipes() {
+  try {
+    await storageAdapter.set(STORAGE_KEY, JSON.stringify(recipes));
+  } catch (e) {
+    showStatus('No se pudo guardar — intenta de nuevo');
+  }
+}
+
+async function savePreps() {
+  try {
+    await storageAdapter.set(PREPS_STORAGE_KEY, JSON.stringify(preps));
+  } catch (e) {
+    showStatus('No se pudo guardar — intenta de nuevo');
+  }
+}
+
+async function loadPreps() {
+  let stored = null;
+  try {
+    const result = await storageAdapter.get(PREPS_STORAGE_KEY);
+    if (result && result.value) stored = JSON.parse(result.value);
+  } catch (e) {
+    stored = null;
+  }
+
+  if (!stored || !stored.length) {
+    preps = defaultPreps;
+  } else {
+    preps = stored;
+    const existingTitles = new Set(stored.map(p => p.title));
+    defaultPreps.forEach(dp => {
+      if (!existingTitles.has(dp.title)) preps.push(dp);
+    });
+  }
+
+  try {
+    await storageAdapter.set(PREPS_STORAGE_KEY, JSON.stringify(preps));
+  } catch (e) {}
+
+  renderPreps();
+}
+
+const ICON_UTENSILS = `<svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>`;
+
+const ICON_SALT_SHAKER = `<svg class="tile-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 4H8l1-4Z"/><path d="M8 7h8l1 13a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L8 7Z"/><circle cx="10.4" cy="11.2" r="0.55" fill="currentColor" stroke="none"/><circle cx="13.6" cy="11.2" r="0.55" fill="currentColor" stroke="none"/><circle cx="12" cy="14.2" r="0.55" fill="currentColor" stroke="none"/><circle cx="10.4" cy="17.2" r="0.55" fill="currentColor" stroke="none"/><circle cx="13.6" cy="17.2" r="0.55" fill="currentColor" stroke="none"/></svg>`;
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function render() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+
+  recipes.forEach((r, i) => {
+    const tile = document.createElement('div');
+    tile.className = 'tile';
+    tile.id = `recipe-card-${i}`;
+    tile.tabIndex = 0;
+    tile.setAttribute('role', 'button');
+    tile.innerHTML = `<span class="tile-icon-circle">${ICON_UTENSILS}</span><span class="tile-name">${escapeHtml(r.title)}</span><button type="button" class="tile-edit" aria-label="Editar receta">✎</button>`;
+    tile.addEventListener('click', () => openRecipeModal(i, false));
+    tile.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openRecipeModal(i, false); }
+    });
+    tile.querySelector('.tile-edit').addEventListener('click', (e) => {
+      e.stopPropagation();
+      openEditModalForm(i, false);
+    });
+    grid.appendChild(tile);
+  });
+
+  const addTile = document.createElement('button');
+  addTile.type = 'button';
+  addTile.className = 'add-tile';
+  addTile.setAttribute('aria-label', 'Agregar receta');
+  addTile.textContent = '+';
+  addTile.addEventListener('click', openModal);
+  grid.appendChild(addTile);
+}
+
+function renderPreps() {
+  const prepsGrid = document.getElementById('prepsGrid');
+  const prepsCount = document.getElementById('prepsCount');
+  prepsGrid.innerHTML = '';
+  prepsCount.textContent = preps.length ? `${preps.length} guardada${preps.length === 1 ? '' : 's'}` : '';
+
+  preps.forEach((p, i) => {
+    const tile = document.createElement('div');
+    tile.className = 'tile';
+    tile.id = `prep-card-${i}`;
+    tile.tabIndex = 0;
+    tile.setAttribute('role', 'button');
+    tile.innerHTML = `<span class="tile-icon-circle">${ICON_SALT_SHAKER}</span><span class="tile-name">${escapeHtml(p.title)}</span><button type="button" class="tile-edit" aria-label="Editar preparación">✎</button>`;
+    tile.addEventListener('click', () => openRecipeModal(i, true));
+    tile.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openRecipeModal(i, true); }
+    });
+    tile.querySelector('.tile-edit').addEventListener('click', (e) => {
+      e.stopPropagation();
+      openEditModalForm(i, true);
+    });
+    prepsGrid.appendChild(tile);
+  });
+}
+
+let currentModalContext = null;
+
+function openRecipeModal(index, isPrep) {
+  const r = isPrep ? preps[index] : recipes[index];
+  if (!r) return;
+  currentModalContext = { index, isPrep };
+
+  const ingHtml = (r.ingredients || []).map(ing =>
+    `<li><span>${escapeHtml(ing.name)}</span><span class="amt">${escapeHtml(ing.amt)}</span></li>`
+  ).join('');
+  const stepsHtml = (r.steps || []).map(s => `<li>${escapeHtml(s)}</li>`).join('');
+
+  const content = document.getElementById('recipeModalContent');
+  content.innerHTML = `
+    <div class="seal">
+      <span class="kcal">${r.kcal ?? '–'}</span>
+      <span class="kcal-label">KCAL</span>
+      <span class="prot">· ${r.protein ?? '–'}g prot</span>
+    </div>
+    <span class="tag">${escapeHtml(r.tag || 'Receta')}</span>
+    <h2 class="recipe-title">${escapeHtml(r.title)}</h2>
+    <p class="desc">${escapeHtml(r.desc || '')}</p>
+    <div class="section-label">Ingredientes</div>
+    <ul class="ingredients">${ingHtml}</ul>
+    <div class="section-label">Preparación</div>
+    <ol class="steps open">${stepsHtml}</ol>
+    ${r.notes ? `<div class="notes">${escapeHtml(r.notes)}</div>` : ''}
+  `;
+  document.getElementById('recipeModalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeRecipeModal() {
+  document.getElementById('recipeModalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('recipeModalClose').addEventListener('click', closeRecipeModal);
+document.getElementById('recipeModalEdit').addEventListener('click', () => {
+  if (!currentModalContext) return;
+  const { index, isPrep } = currentModalContext;
+  closeRecipeModal();
+  openEditModalForm(index, isPrep);
+});
+document.getElementById('recipeModalOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'recipeModalOverlay') closeRecipeModal();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeRecipeModal();
+});
+
+let editingContext = null;
+const modalFieldIds = ['f-title','f-tag','f-kcal','f-prot','f-desc','f-ing','f-steps','f-notes'];
+
+function clearModalFields() {
+  modalFieldIds.forEach(id => { document.getElementById(id).value = ''; });
+}
+
+function openModal() {
+  editingContext = null;
+  document.getElementById('modalTitle').textContent = 'Nueva receta';
+  document.getElementById('btnSave').textContent = 'Guardar receta';
+  clearModalFields();
+  document.getElementById('modalOverlay').classList.add('open');
+  document.getElementById('f-title').focus();
+}
+
+function openEditModalForm(index, isPrep) {
+  const arr = isPrep ? preps : recipes;
+  const r = arr[index];
+  if (!r) return;
+
+  editingContext = { index, isPrep };
+  document.getElementById('modalTitle').textContent = 'Editar receta';
+  document.getElementById('btnSave').textContent = 'Guardar cambios';
+  document.getElementById('f-title').value = r.title || '';
+  document.getElementById('f-tag').value = r.tag || '';
+  document.getElementById('f-kcal').value = r.kcal ?? '';
+  document.getElementById('f-prot').value = r.protein ?? '';
+  document.getElementById('f-desc').value = r.desc || '';
+  document.getElementById('f-ing').value = (r.ingredients || []).map(ing => `${ing.amt} — ${ing.name}`).join('\n');
+  document.getElementById('f-steps').value = (r.steps || []).join('\n');
+  document.getElementById('f-notes').value = r.notes || '';
+  document.getElementById('modalOverlay').classList.add('open');
+  document.getElementById('f-title').focus();
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  clearModalFields();
+  editingContext = null;
+}
+
+document.getElementById('btnCancel').addEventListener('click', closeModal);
+document.getElementById('modalOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'modalOverlay') closeModal();
+});
+
+document.getElementById('btnSave').addEventListener('click', async () => {
+  const title = document.getElementById('f-title').value.trim();
+  if (!title) { showStatus('Ponle un nombre a la receta'); return; }
+
+  const ingLines = document.getElementById('f-ing').value.split('\n').map(l => l.trim()).filter(Boolean);
+  const ingredients = ingLines.map(line => {
+    const parts = line.split('—');
+    if (parts.length >= 2) return { amt: parts[0].trim(), name: parts.slice(1).join('—').trim() };
+    return { amt: '', name: line };
+  });
+
+  const steps = document.getElementById('f-steps').value.split('\n').map(l => l.trim()).filter(Boolean);
+
+  const recipeData = {
+    title,
+    tag: document.getElementById('f-tag').value.trim() || 'Receta',
+    kcal: document.getElementById('f-kcal').value ? Number(document.getElementById('f-kcal').value) : null,
+    protein: document.getElementById('f-prot').value ? Number(document.getElementById('f-prot').value) : null,
+    desc: document.getElementById('f-desc').value.trim(),
+    ingredients,
+    steps,
+    notes: document.getElementById('f-notes').value.trim()
+  };
+
+  if (editingContext) {
+    const { index, isPrep } = editingContext;
+    if (isPrep) {
+      preps[index] = recipeData;
+      await savePreps();
+      renderPreps();
+    } else {
+      recipes[index] = recipeData;
+      await saveRecipes();
+      render();
+    }
+    showStatus('Receta actualizada ✓');
+  } else {
+    recipes.push(recipeData);
+    await saveRecipes();
+    render();
+    showStatus('Receta guardada ✓');
+  }
+
+  closeModal();
+});
+
+let hasRendered = false;
+const originalRender = render;
+render = function(...args) { hasRendered = true; return originalRender.apply(this, args); };
+
+const backToTopBtn = document.getElementById('backToTop');
+window.addEventListener('scroll', () => {
+  backToTopBtn.classList.toggle('visible', window.scrollY > 400);
+});
+backToTopBtn.addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+(async () => {
+  await loadRecipes();
+  await loadPreps();
+})();
+
+setTimeout(() => {
+  if (!hasRendered) {
+    recipes = defaultRecipes;
+    preps = defaultPreps;
+    render();
+    renderPreps();
+  }
+}, 4000);
+</script>
+
+</body>
+</html>
