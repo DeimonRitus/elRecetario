@@ -392,7 +392,7 @@
     align-items: center;
     justify-content: center;
     padding: 20px;
-    z-index: 50;
+    z-index: 95;
   }
   .modal-overlay.open { display: flex; }
   .modal {
@@ -460,6 +460,199 @@
     text-align: center;
   }
 
+  /* ---------- Gráfica proteína vs. calorías ---------- */
+  .pk-chart-wrap {
+    background: var(--paper);
+    border-radius: 14px;
+    padding: 18px;
+    margin-top: 12px;
+    box-shadow: 0 4px 14px rgba(13,20,25,0.14), 0 1px 3px rgba(13,20,25,0.1);
+  }
+  .pk-chart-wrap svg { width: 100%; height: auto; display: block; }
+  .pk-axis { stroke: var(--line); stroke-width: 1; }
+  .pk-axis-label { font-family: 'IBM Plex Mono', monospace; font-size: 8px; fill: var(--ink-soft); }
+  .pk-dot { fill: var(--brass); stroke: var(--paper); stroke-width: 1.5; cursor: default; }
+  .pk-dot-best { fill: var(--rust); }
+  .pk-dot-label { font-family: 'Archivo', sans-serif; font-weight: 600; font-size: 7.5px; fill: var(--rust); }
+  .pk-legend {
+    margin-top: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+  }
+  .pk-tooltip {
+    position: fixed;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'Archivo', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    pointer-events: none;
+    z-index: 100;
+    opacity: 0;
+    transform: translate(-50%, -100%) translateY(-8px) scale(0.92);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    white-space: nowrap;
+  }
+  .pk-tooltip.show { opacity: 1; transform: translate(-50%, -100%) translateY(-12px) scale(1); }
+  .pk-tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%; left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: var(--ink);
+  }
+
+  /* ---------- Bitácora (registro de comidas por día) ---------- */
+  .day-log-card {
+    background: var(--paper);
+    border-radius: 16px;
+    padding: 20px;
+    margin-top: 18px;
+    box-shadow: 0 4px 14px rgba(13,20,25,0.14), 0 1px 3px rgba(13,20,25,0.1);
+  }
+  .day-log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    cursor: pointer;
+  }
+  .day-log-date {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--rust);
+  }
+  .day-log-summary {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-top: 3px;
+  }
+  .day-log-chevron {
+    color: var(--ink-soft);
+    font-size: 16px;
+    transition: transform 0.2s ease;
+  }
+  .day-log-chevron.open { transform: rotate(180deg); }
+
+  .meal-slot { margin-top: 18px; }
+  .meal-slot-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  .chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .meal-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--paper-2);
+    color: var(--ink);
+    font-family: 'Archivo', sans-serif;
+    font-weight: 600;
+    font-size: 12.5px;
+    padding: 6px 8px 6px 12px;
+    border-radius: 20px;
+  }
+  .meal-chip button {
+    background: none;
+    border: none;
+    color: var(--ink-soft);
+    cursor: pointer;
+    font-size: 13px;
+    padding: 2px;
+    line-height: 1;
+  }
+  .meal-chip-empty {
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+
+  .meal-controls {
+    display: none;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--line);
+  }
+  .meal-controls.open { display: flex; }
+  .meal-control-btn {
+    flex: 1 1 auto;
+    min-width: 90px;
+    background: var(--brass);
+    color: var(--rust);
+    border: none;
+    border-radius: 20px;
+    padding: 9px 14px;
+    font-family: 'Archivo', sans-serif;
+    font-weight: 700;
+    font-size: 12.5px;
+    cursor: pointer;
+  }
+  .meal-control-btn.active { background: var(--rust); color: var(--paper); }
+
+  .recipe-picker {
+    display: none;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--line);
+  }
+  .recipe-picker.open { display: block; }
+  .recipe-picker-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+  .picker-chip {
+    display: inline-flex;
+    background: var(--paper);
+    border: 1.5px solid var(--line);
+    color: var(--ink);
+    font-family: 'Archivo', sans-serif;
+    font-weight: 600;
+    font-size: 12.5px;
+    padding: 7px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .picker-chip:hover, .picker-chip:focus-visible { border-color: var(--rust); background: var(--paper-2); }
+  .picker-close-btn {
+    display: block;
+    margin-top: 14px;
+    background: none;
+    border: none;
+    color: var(--rust);
+    font-family: 'Archivo', sans-serif;
+    font-weight: 700;
+    font-size: 12.5px;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+  }
+
+  /* ---------- Grupos por momento del día ---------- */
+  .recipe-group { margin-bottom: 26px; }
+  .recipe-group .section-label { margin-top: 4px; }
+
   /* ---------- Fullscreen recipe modal ---------- */
 
   /* ---------- Preparaciones base (separate section) ---------- */
@@ -498,7 +691,7 @@
     align-items: flex-start;
     justify-content: center;
     padding: 0;
-    z-index: 70;
+    z-index: 90;
     overflow-y: auto;
   }
   .recipe-modal-overlay.open { display: flex; }
@@ -538,7 +731,7 @@
     align-items: center;
     justify-content: center;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    z-index: 71;
+    z-index: 91;
   }
   .recipe-modal-close:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
 
@@ -559,7 +752,7 @@
     align-items: center;
     justify-content: center;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    z-index: 71;
+    z-index: 91;
   }
   .recipe-modal-edit:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
 
@@ -650,6 +843,8 @@
     color-scheme: dark;
   }
   html.theme-dark .tile-icon-circle { background: rgba(232,236,239,0.08); }
+  html.theme-dark .meal-control-btn,
+  html.theme-dark .meal-control-btn.active { color: #14181b; }
   html.theme-dark .add-tile { background: rgba(255,255,255,0.03); border-color: rgba(232,236,239,0.25); color: rgba(232,236,239,0.5); }
   html.theme-dark .add-tile:hover, html.theme-dark .add-tile:focus-visible { background: rgba(255,255,255,0.08); color: var(--ink); }
   html.theme-dark .modal input, html.theme-dark .modal textarea { background: #262c31; color: var(--ink); border-color: rgba(232,236,239,0.18); }
@@ -837,10 +1032,12 @@
     <ul class="protein-list" id="proteinList"></ul>
     <div class="section-label" style="margin-top:28px;">Mejor relación proteína–kcal</div>
     <div class="best-dish-card" id="bestDishCard"></div>
+    <div class="section-label" style="margin-top:28px;">Proteína vs. calorías por receta</div>
+    <div class="pk-chart-wrap" id="proteinKcalChart"></div>
   </div>
 
   <div id="tab-recetario" class="tab-panel">
-    <div id="grid" class="grid" aria-live="polite">
+    <div id="grid" aria-live="polite">
       <div class="loading">cargando recetario…</div>
     </div>
 
@@ -852,6 +1049,39 @@
       <p class="preps-sub">Cosas que preparas en lote una vez y usas durante la semana — no son una comida en sí, son un ingrediente listo.</p>
       <div id="prepsGrid" class="preps-grid"></div>
     </section>
+  </div>
+
+  <div id="tab-bitacora" class="tab-panel">
+    <h2 class="section-heading">Bitácora</h2>
+    <p class="preps-sub">Registra qué receta comiste en cada momento del día de hoy.</p>
+
+    <div class="day-log-card" id="dayLogCard">
+      <div class="day-log-header" id="dayLogHeader" role="button" tabindex="0">
+        <div>
+          <div class="day-log-date" id="dayLogDate">Hoy</div>
+          <div class="day-log-summary" id="dayLogSummary"></div>
+        </div>
+        <span class="day-log-chevron" id="dayLogChevron">▾</span>
+      </div>
+
+      <div class="meal-slot"><div class="meal-slot-label">Desayuno</div><div class="chip-row" id="slot-Desayuno"></div></div>
+      <div class="meal-slot"><div class="meal-slot-label">Comida</div><div class="chip-row" id="slot-Comida"></div></div>
+      <div class="meal-slot"><div class="meal-slot-label">Cena</div><div class="chip-row" id="slot-Cena"></div></div>
+      <div class="meal-slot"><div class="meal-slot-label">Snack</div><div class="chip-row" id="slot-Snack"></div></div>
+
+      <div class="meal-controls" id="mealControls">
+        <button type="button" class="meal-control-btn" data-slot="Desayuno">+ Desayuno</button>
+        <button type="button" class="meal-control-btn" data-slot="Comida">+ Comida</button>
+        <button type="button" class="meal-control-btn" data-slot="Cena">+ Cena</button>
+        <button type="button" class="meal-control-btn" data-slot="Snack">+ Snack</button>
+      </div>
+
+      <div class="recipe-picker" id="recipePicker">
+        <div class="recipe-picker-label" id="recipePickerLabel">Elige una receta</div>
+        <div class="chip-row" id="recipePickerChips"></div>
+        <button type="button" class="picker-close-btn" id="pickerCloseBtn">Listo, cerrar selección</button>
+      </div>
+    </div>
   </div>
 
   <div id="tab-ajustes" class="tab-panel">
@@ -876,6 +1106,10 @@
   <button class="nav-btn" data-tab="tab-recetario" aria-label="Recetario">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
     Recetario
+  </button>
+  <button class="nav-btn" data-tab="tab-bitacora" aria-label="Bitácora">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 3v4h6V3"/><path d="M8 12h8"/><path d="M8 16h5"/></svg>
+    Bitácora
   </button>
   <button class="nav-btn" data-tab="tab-ajustes" aria-label="Ajustes">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -943,6 +1177,7 @@
 const STORAGE_KEY = 'recetario:recetas';
 const PREPS_STORAGE_KEY = 'recetario:preparaciones';
 const THEME_KEY = 'recetario:tema';
+const BITACORA_STORAGE_KEY = 'recetario:bitacora';
 
 // Funciona tanto dentro de Claude (window.storage) como si abres el
 // archivo/sitio en cualquier navegador normal (usa localStorage como respaldo).
@@ -1347,35 +1582,75 @@ async function savePreps() {
 }
 
 // ---------- Render: tiles ----------
+const RECIPE_GROUPS = ['Desayuno', 'Comida', 'Cena'];
+
+function buildTileEl(r, i) {
+  const tile = document.createElement('div');
+  tile.className = 'tile';
+  tile.id = `recipe-card-${i}`;
+  tile.tabIndex = 0;
+  tile.setAttribute('role', 'button');
+  tile.innerHTML = `<span class="tile-icon-circle">${ICON_UTENSILS}</span><span class="tile-name">${escapeHtml(r.title)}</span><button type="button" class="tile-edit" aria-label="Editar receta">✎</button>`;
+  tile.addEventListener('click', () => openRecipeModal(i, false));
+  tile.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openRecipeModal(i, false); }
+  });
+  tile.querySelector('.tile-edit').addEventListener('click', (e) => {
+    e.stopPropagation();
+    openEditModalForm(i, false);
+  });
+  return tile;
+}
+
 function render() {
   const grid = document.getElementById('grid');
   grid.innerHTML = '';
 
+  // Agrupa por momento del día usando el campo "tag". Una receta con
+  // tag "Comida / Cena" aparece en ambos grupos, ya que aplica a los dos.
+  const buckets = { Desayuno: [], Comida: [], Cena: [], Otros: [] };
   recipes.forEach((r, i) => {
-    const tile = document.createElement('div');
-    tile.className = 'tile';
-    tile.id = `recipe-card-${i}`;
-    tile.tabIndex = 0;
-    tile.setAttribute('role', 'button');
-    tile.innerHTML = `<span class="tile-icon-circle">${ICON_UTENSILS}</span><span class="tile-name">${escapeHtml(r.title)}</span><button type="button" class="tile-edit" aria-label="Editar receta">✎</button>`;
-    tile.addEventListener('click', () => openRecipeModal(i, false));
-    tile.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openRecipeModal(i, false); }
+    const tagNorm = (r.tag || '').toLowerCase();
+    let matched = false;
+    RECIPE_GROUPS.forEach(g => {
+      if (tagNorm.includes(g.toLowerCase())) { buckets[g].push(i); matched = true; }
     });
-    tile.querySelector('.tile-edit').addEventListener('click', (e) => {
-      e.stopPropagation();
-      openEditModalForm(i, false);
-    });
-    grid.appendChild(tile);
+    if (!matched) buckets.Otros.push(i);
   });
 
+  [...RECIPE_GROUPS, 'Otros'].forEach(groupName => {
+    const indices = buckets[groupName];
+    if (!indices.length) return;
+
+    const groupBlock = document.createElement('div');
+    groupBlock.className = 'recipe-group';
+
+    const label = document.createElement('div');
+    label.className = 'section-label';
+    label.textContent = `${groupName} · ${indices.length}`;
+    groupBlock.appendChild(label);
+
+    const groupGrid = document.createElement('div');
+    groupGrid.className = 'grid';
+    indices.forEach(i => groupGrid.appendChild(buildTileEl(recipes[i], i)));
+    groupBlock.appendChild(groupGrid);
+
+    grid.appendChild(groupBlock);
+  });
+
+  const addWrap = document.createElement('div');
+  addWrap.className = 'recipe-group';
+  const addGrid = document.createElement('div');
+  addGrid.className = 'grid';
   const addTile = document.createElement('button');
   addTile.type = 'button';
   addTile.className = 'add-tile';
   addTile.setAttribute('aria-label', 'Agregar receta');
   addTile.textContent = '+';
   addTile.addEventListener('click', openModal);
-  grid.appendChild(addTile);
+  addGrid.appendChild(addTile);
+  addWrap.appendChild(addGrid);
+  grid.appendChild(addWrap);
 
   renderDashboard();
 }
@@ -1414,6 +1689,92 @@ function normalizeForMatch(str) {
   return str.toLowerCase()
     .replace(/á/g,'a').replace(/é/g,'e').replace(/í/g,'i').replace(/ó/g,'o').replace(/ú/g,'u');
 }
+
+function renderProteinKcalChart() {
+  const container = document.getElementById('proteinKcalChart');
+  if (!container) return;
+
+  const data = recipes.filter(r => r.kcal && r.protein);
+  if (!data.length) {
+    container.innerHTML = '<p class="desc" style="margin:0;">Sin datos suficientes todavía</p>';
+    return;
+  }
+
+  const W = 320, H = 200;
+  const padL = 34, padR = 14, padT = 14, padB = 28;
+  const plotW = W - padL - padR;
+  const plotH = H - padT - padB;
+
+  const maxKcal = Math.max(...data.map(r => r.kcal)) * 1.1;
+  const maxProt = Math.max(...data.map(r => r.protein)) * 1.15;
+
+  let bestIdx = 0;
+  data.forEach((r, i) => {
+    if ((r.protein / r.kcal) > (data[bestIdx].protein / data[bestIdx].kcal)) bestIdx = i;
+  });
+
+  const points = data.map((r, i) => {
+    const x = padL + (r.kcal / maxKcal) * plotW;
+    const y = padT + plotH - (r.protein / maxProt) * plotH;
+    return { x, y, r, isBest: i === bestIdx };
+  });
+
+  const circles = points.map((p, idx) => `
+    <circle class="pk-dot${p.isBest ? ' pk-dot-best' : ''}" data-idx="${idx}" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${p.isBest ? 6 : 4.5}"></circle>
+  `).join('');
+
+  const bestPoint = points.find(p => p.isBest);
+  const bestLabelSvg = bestPoint
+    ? `<text class="pk-dot-label" x="${bestPoint.x.toFixed(1)}" y="${(bestPoint.y - 10).toFixed(1)}" text-anchor="middle">★ óptimo</text>`
+    : '';
+
+  container.innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Gráfica de proteína contra calorías por receta">
+      <line class="pk-axis" x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT + plotH}" />
+      <line class="pk-axis" x1="${padL}" y1="${padT + plotH}" x2="${padL + plotW}" y2="${padT + plotH}" />
+      <text class="pk-axis-label" x="${padL}" y="${padT + plotH + 16}">0</text>
+      <text class="pk-axis-label" x="${padL + plotW}" y="${padT + plotH + 16}" text-anchor="end">${Math.round(maxKcal)} kcal</text>
+      <text class="pk-axis-label" x="${padL - 6}" y="${padT + 4}" text-anchor="end">${Math.round(maxProt)}g</text>
+      <text class="pk-axis-label" x="${padL - 6}" y="${padT + plotH}" text-anchor="end">0g</text>
+      ${circles}
+      ${bestLabelSvg}
+    </svg>
+    <div class="pk-legend">Cada punto es una receta guardada (eje X = calorías, eje Y = proteína). Entre más arriba a la izquierda, más eficiente: más proteína por menos calorías. El punto marcado es tu mejor relación actual. Toca un punto para ver el nombre de la receta.</div>
+  `;
+
+  container.querySelectorAll('.pk-dot').forEach(dot => {
+    dot.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const idx = Number(dot.dataset.idx);
+      const p = points[idx];
+      const rect = dot.getBoundingClientRect();
+      showPkTooltip(rect.left + rect.width / 2, rect.top, `${p.r.title} — ${p.r.kcal} kcal, ${p.r.protein}g`);
+    });
+  });
+}
+
+let pkTooltipEl = null;
+function ensurePkTooltip() {
+  if (!pkTooltipEl) {
+    pkTooltipEl = document.createElement('div');
+    pkTooltipEl.className = 'pk-tooltip';
+    document.body.appendChild(pkTooltipEl);
+  }
+  return pkTooltipEl;
+}
+function showPkTooltip(x, y, text) {
+  const el = ensurePkTooltip();
+  el.textContent = text;
+  el.style.left = `${x}px`;
+  el.style.top = `${y}px`;
+  requestAnimationFrame(() => el.classList.add('show'));
+}
+function hidePkTooltip() {
+  if (pkTooltipEl) pkTooltipEl.classList.remove('show');
+}
+document.addEventListener('click', (e) => {
+  if (!e.target.classList || !e.target.classList.contains('pk-dot')) hidePkTooltip();
+});
 
 function renderDashboard() {
   const statGrid = document.getElementById('statGrid');
@@ -1462,6 +1823,8 @@ function renderDashboard() {
   } else {
     bestDishCard.innerHTML = '<p class="desc" style="margin:0;">Sin datos suficientes todavía</p>';
   }
+
+  renderProteinKcalChart();
 }
 
 // ---------- Tabs ----------
@@ -1472,9 +1835,138 @@ function switchTab(tabId) {
   tabPanels.forEach(p => p.classList.toggle('active', p.id === tabId));
   tabButtons.forEach(b => b.classList.toggle('active', b.dataset.tab === tabId));
   if (tabId === 'tab-dashboard') renderDashboard();
+  if (tabId === 'tab-bitacora') renderBitacora();
 }
 
 tabButtons.forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
+
+// ---------- Bitácora ----------
+let bitacora = {};
+let bitacoraExpanded = false;
+let activeSlot = null;
+const MEAL_SLOTS = ['Desayuno', 'Comida', 'Cena', 'Snack'];
+
+function todayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function getTodayEntry() {
+  const key = todayKey();
+  if (!bitacora[key]) bitacora[key] = { Desayuno: [], Comida: [], Cena: [], Snack: [] };
+  return bitacora[key];
+}
+
+async function loadBitacora() {
+  try {
+    const result = await storageAdapter.get(BITACORA_STORAGE_KEY);
+    if (result && result.value) bitacora = JSON.parse(result.value);
+  } catch (e) {
+    bitacora = {};
+  }
+  renderBitacora();
+}
+
+async function saveBitacora() {
+  try {
+    await storageAdapter.set(BITACORA_STORAGE_KEY, JSON.stringify(bitacora));
+  } catch (e) {
+    showStatus('No se pudo guardar — intenta de nuevo');
+  }
+}
+
+function renderBitacora() {
+  const dateEl = document.getElementById('dayLogDate');
+  if (!dateEl) return;
+
+  const entry = getTodayEntry();
+  const todayFormatted = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
+  dateEl.textContent = todayFormatted.charAt(0).toUpperCase() + todayFormatted.slice(1);
+
+  let totalKcal = 0, totalProt = 0, totalItems = 0;
+  MEAL_SLOTS.forEach(slot => {
+    (entry[slot] || []).forEach(item => {
+      totalKcal += item.kcal || 0;
+      totalProt += item.protein || 0;
+      totalItems++;
+    });
+  });
+  document.getElementById('dayLogSummary').textContent = totalItems
+    ? `${totalKcal} kcal · ${totalProt}g proteína`
+    : 'Nada registrado todavía';
+
+  MEAL_SLOTS.forEach(slot => {
+    const chipRow = document.getElementById(`slot-${slot}`);
+    chipRow.innerHTML = '';
+    const items = entry[slot] || [];
+    if (!items.length) {
+      chipRow.innerHTML = '<span class="meal-chip-empty">Nada agregado</span>';
+      return;
+    }
+    items.forEach((item, idx) => {
+      const chip = document.createElement('span');
+      chip.className = 'meal-chip';
+      chip.innerHTML = `${escapeHtml(item.title)} <button type="button" aria-label="Quitar">✕</button>`;
+      chip.querySelector('button').addEventListener('click', async () => {
+        entry[slot].splice(idx, 1);
+        await saveBitacora();
+        renderBitacora();
+      });
+      chipRow.appendChild(chip);
+    });
+  });
+}
+
+document.getElementById('dayLogHeader').addEventListener('click', toggleBitacoraExpanded);
+document.getElementById('dayLogHeader').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleBitacoraExpanded(); }
+});
+
+function toggleBitacoraExpanded() {
+  bitacoraExpanded = !bitacoraExpanded;
+  document.getElementById('mealControls').classList.toggle('open', bitacoraExpanded);
+  document.getElementById('dayLogChevron').classList.toggle('open', bitacoraExpanded);
+  if (!bitacoraExpanded) {
+    document.getElementById('recipePicker').classList.remove('open');
+    document.querySelectorAll('.meal-control-btn').forEach(b => b.classList.remove('active'));
+    activeSlot = null;
+  }
+}
+
+document.querySelectorAll('.meal-control-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    activeSlot = btn.dataset.slot;
+    document.querySelectorAll('.meal-control-btn').forEach(b => b.classList.toggle('active', b === btn));
+    renderRecipePicker();
+    document.getElementById('recipePicker').classList.add('open');
+  });
+});
+
+function renderRecipePicker() {
+  document.getElementById('recipePickerLabel').textContent = `Agregar a ${activeSlot}`;
+  const chipsWrap = document.getElementById('recipePickerChips');
+  chipsWrap.innerHTML = '';
+  recipes.forEach(r => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'picker-chip';
+    chip.textContent = r.title;
+    chip.addEventListener('click', async () => {
+      const entry = getTodayEntry();
+      entry[activeSlot].push({ title: r.title, kcal: r.kcal, protein: r.protein });
+      await saveBitacora();
+      renderBitacora();
+      showStatus(`Agregado a ${activeSlot} ✓`);
+    });
+    chipsWrap.appendChild(chip);
+  });
+}
+
+document.getElementById('pickerCloseBtn').addEventListener('click', () => {
+  document.getElementById('recipePicker').classList.remove('open');
+  document.querySelectorAll('.meal-control-btn').forEach(b => b.classList.remove('active'));
+  activeSlot = null;
+});
 
 // ---------- Tema oscuro/claro ----------
 function applyTheme(theme) {
@@ -1658,6 +2150,7 @@ const originalRender = render;
 render = function (...args) { hasRendered = true; return originalRender.apply(this, args); };
 
 loadTheme();
+loadBitacora();
 
 (async () => {
   await loadRecipes();
